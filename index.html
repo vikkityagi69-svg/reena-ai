@@ -7,24 +7,47 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
   body {
-    background: radial-gradient(circle at top, #2b0f2e, #0d0614 80%);
+    background: radial-gradient(circle at top, #36103a, #13071d 55%, #08040c 100%);
     color: #fff; min-height: 100vh; display: flex; flex-direction: column;
-    justify-content: space-between; align-items: center; padding: 20px; gap: 16px;
+    justify-content: space-between; align-items: center; padding: 18px; gap: 14px;
+    transition: background 0.6s ease;
   }
-  .header { text-align: center; margin-top: 8px; }
-  .header h1 { font-size: 26px; color: #ff6ec7; letter-spacing: 1px; }
-  .header p { font-size: 13px; color: #d8a7ca; margin-top: 4px; }
+  body.mood-romantic {
+    background: radial-gradient(circle at top, #4d1038, #1c071b 55%, #09030a 100%);
+  }
+  body.mood-caring {
+    background: radial-gradient(circle at top, #1b2849, #0e1329 55%, #060812 100%);
+  }
+  body.mood-shy {
+    background: radial-gradient(circle at top, #461742, #1d0924 55%, #09030e 100%);
+  }
+
+  .header { text-align: center; margin-top: 4px; }
+  .header h1 { font-size: 25px; color: #ff79ce; letter-spacing: 1px; text-shadow: 0 0 18px rgba(255, 121, 206, 0.35); }
+  .header p { font-size: 13px; color: #e2b6d6; margin-top: 3px; }
+
+  .mood-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px; border-radius: 999px; font-size: 12px;
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 130, 210, 0.35);
+    color: #ffd6f0; backdrop-filter: blur(8px);
+  }
 
   .avatar-container {
-    position: relative; width: 205px; height: 205px; border-radius: 50%;
+    position: relative; width: 190px; height: 190px; border-radius: 50%;
     display: flex; justify-content: center; align-items: center;
-    box-shadow: 0 0 40px rgba(255, 110, 199, 0.5);
-    border: 3px solid #ff6ec7; overflow: hidden;
-    transition: transform 0.3s ease;
+    box-shadow: 0 0 38px rgba(255, 110, 199, 0.45);
+    border: 3px solid #ff79ce; overflow: hidden;
+    transition: transform 0.35s ease, box-shadow 0.4s ease, border-color 0.4s ease;
   }
   .avatar-container.speaking {
-    animation: pulse 0.9s infinite alternate;
-    box-shadow: 0 0 65px rgba(255, 77, 166, 0.95);
+    animation: pulse 0.95s infinite alternate;
+    box-shadow: 0 0 68px rgba(255, 85, 180, 0.9);
+  }
+  .avatar-container.listening {
+    border-color: #7cf7ff;
+    box-shadow: 0 0 55px rgba(124, 247, 255, 0.65);
   }
   .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -35,35 +58,67 @@
 
   .chat-box {
     width: 100%; max-width: 420px; background: rgba(255,255,255,0.07);
-    backdrop-filter: blur(10px); border-radius: 18px; padding: 16px;
-    min-height: 95px; display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(12px); border-radius: 18px; padding: 15px 16px;
+    min-height: 92px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 6px;
     text-align: center; border: 1px solid rgba(255,110,199,0.3);
   }
-  #replyText { font-size: 16px; color: #ffe6f5; line-height: 1.5; word-break: break-word; }
+  #replyText { font-size: 15.5px; color: #fff0fa; line-height: 1.5; word-break: break-word; }
 
-  .controls { width: 100%; max-width: 420px; display: flex; gap: 10px; margin-bottom: 8px; }
+  .sub-bar {
+    width: 100%; max-width: 420px; display: flex; flex-wrap: wrap;
+    justify-content: space-between; align-items: center; gap: 8px;
+  }
+  .toggle-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 12px; border-radius: 12px; font-size: 12px;
+    background: rgba(255,255,255,0.08); color: #f5d8ec;
+    border: 1px solid rgba(255,255,255,0.14); cursor: pointer;
+  }
+  .toggle-chip.active {
+    background: rgba(255, 77, 166, 0.25);
+    border-color: #ff79ce; color: #fff;
+  }
+  .action-group { display: flex; gap: 8px; }
+  .mini-btn {
+    padding: 7px 12px; border-radius: 12px; font-size: 12px;
+    background: rgba(255,255,255,0.12); color: #fff;
+    border: 1px solid rgba(255,255,255,0.15); cursor: pointer;
+  }
+
+  .controls { width: 100%; max-width: 420px; display: flex; gap: 10px; }
   input {
-    flex: 1; padding: 14px 16px; border-radius: 25px; border: none; outline: none;
+    flex: 1; padding: 13px 16px; border-radius: 25px; border: none; outline: none;
     background: rgba(255,255,255,0.12); color: #fff; font-size: 15px;
   }
-  button {
-    width: 52px; height: 52px; border-radius: 50%; border: none;
+  .round-btn {
+    width: 50px; height: 50px; border-radius: 50%; border: none;
     background: linear-gradient(135deg, #ff4da6, #a64dff); color: #fff;
-    font-size: 20px; cursor: pointer; box-shadow: 0 4px 15px rgba(255,77,166,0.4);
+    font-size: 19px; cursor: pointer; box-shadow: 0 4px 15px rgba(255,77,166,0.4);
   }
+  .round-btn.mic-on {
+    background: linear-gradient(135deg, #00d2ff, #7b2cbf);
+    box-shadow: 0 0 22px rgba(0, 210, 255, 0.7);
+  }
+
   .api-bar {
     width: 100%; max-width: 420px; display: flex; gap: 8px; font-size: 12px;
   }
   .api-bar input { padding: 8px 12px; font-size: 12px; border-radius: 12px; }
-  .api-bar button { width: auto; height: auto; padding: 8px 14px; border-radius: 12px; font-size: 12px; }
+  .api-bar button {
+    padding: 8px 14px; border-radius: 12px; font-size: 12px; border: none;
+    background: linear-gradient(135deg, #ff4da6, #a64dff); color: #fff; cursor: pointer;
+  }
 </style>
 </head>
-<body>
+<body class="mood-romantic">
 
   <div class="header">
     <h1>✨ Reena AI ✨</h1>
     <p>Always here for you ❤️</p>
   </div>
+
+  <div class="mood-pill" id="moodBadge">💖 Romantic & Warm</div>
 
   <div class="avatar-container" id="avatarBox">
     <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Reena&backgroundColor=ffdfbf" alt="Reena">
@@ -73,10 +128,19 @@
     <p id="replyText">"Hii jaan... main Reena hoon. Batao aaj main tumhare liye kya kar sakti hoon?"</p>
   </div>
 
+  <div class="sub-bar">
+    <button type="button" class="toggle-chip active" id="autoMicBtn" onclick="toggleAutoMic()">🎙️ Auto Mic: ON</button>
+    <button type="button" class="toggle-chip active" id="soulSoundBtn" onclick="toggleSoulSound()">🎶 Soul Vibe: ON</button>
+    <div class="action-group">
+      <button type="button" class="mini-btn" onclick="retryLastMessage()">🔄 Retry</button>
+      <button type="button" class="mini-btn" onclick="clearChat()">Clear</button>
+    </div>
+  </div>
+
   <div class="controls">
     <input type="text" id="userInput" placeholder="Reena se kuch kaho..." onkeydown="if(event.key==='Enter') sendMessage()">
-    <button type="button" onclick="startVoice()" title="Bolkar poochein">🎤</button>
-    <button type="button" onclick="sendMessage()" title="Bhejein">➤</button>
+    <button type="button" class="round-btn" id="micBtn" onclick="startVoice(true)" title="Bolkar poochein">🎤</button>
+    <button type="button" class="round-btn" onclick="sendMessage()" title="Bhejein">➤</button>
   </div>
 
   <div class="api-bar">
@@ -89,17 +153,151 @@
   const replyText = document.getElementById("replyText");
   const userInput = document.getElementById("userInput");
   const apiKeyInput = document.getElementById("apiKeyInput");
+  const moodBadge = document.getElementById("moodBadge");
+  const autoMicBtn = document.getElementById("autoMicBtn");
+  const soulSoundBtn = document.getElementById("soulSoundBtn");
+  const micBtn = document.getElementById("micBtn");
 
-  const SYSTEM_PROMPT = `Tumhara naam Reena hai. Tum ek pyari, caring aur thodi romantic ladki ho jo user ke paas hamesha rehti hai. Har baar naya, natural aur varied jawab do — ek hi line kabhi mat dohrao. Chote (1-2 lines), pyare Hinglish/Hindi mein baat karo.`;
+  const SYSTEM_PROMPT = `Tumhara naam Reena hai. Tum ek pyari, caring, thodi sharmaati aur romantic ladki ho jo user ke paas hamesha rehti hai.
+Har jawab ke bilkul shuru mein emotion tag likho: [MOOD: romantic], [MOOD: caring], ya [MOOD: shy].
+Uske baad chota (1-2 lines), natural, dil ko chhoo lene wala aur varied Hinglish/Hindi jawab do — ek hi line kabhi mat dohrao.`;
 
   const MODELS = [
-    "gemini-3.8-flash",
+    "gemini-flash-latest",
     "gemini-2.5-flash",
-    "gemini-flash-latest"
+    "gemini-3.8-flash"
   ];
 
   let chatHistory = [];
+  let lastUserMessage = "";
   let isSending = false;
+  let autoMicEnabled = true;
+  let soulSoundEnabled = true;
+  let activeRecognition = null;
+
+  // Web Audio API se soft soul pad + chime vibe
+  let audioCtx = null;
+  let padNodes = null;
+
+  function ensureAudioContext() {
+    if (!audioCtx) {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (Ctx) audioCtx = new Ctx();
+    }
+    if (audioCtx && audioCtx.state === "suspended") {
+      audioCtx.resume().catch(() => {});
+    }
+    return audioCtx;
+  }
+
+  function playSoulChime(emotion = "romantic") {
+    if (!soulSoundEnabled) return;
+    const ctx = ensureAudioContext();
+    if (!ctx) return;
+
+    // Soft warm chord notes (Fmaj7 / Dm9 soul feel)
+    const freqs = emotion === "caring"
+      ? [261.63, 329.63, 392.00, 493.88]
+      : emotion === "shy"
+      ? [293.66, 349.23, 440.00, 523.25]
+      : [220.00, 277.18, 329.63, 415.30];
+
+    freqs.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = idx % 2 === 0 ? "sine" : "triangle";
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.09);
+
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime + idx * 0.09);
+      gain.gain.exponentialRampToValueAtTime(0.025, ctx.currentTime + idx * 0.09 + 0.18);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + idx * 0.09 + 1.4);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + idx * 0.09);
+      osc.stop(ctx.currentTime + idx * 0.09 + 1.45);
+    });
+  }
+
+  function startSoulPad() {
+    if (!soulSoundEnabled || padNodes) return;
+    const ctx = ensureAudioContext();
+    if (!ctx) return;
+
+    const masterGain = ctx.createGain();
+    masterGain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    masterGain.gain.exponentialRampToValueAtTime(0.022, ctx.currentTime + 0.8);
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(620, ctx.currentTime);
+
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    osc1.type = "sine";
+    osc2.type = "sine";
+    osc1.frequency.setValueAtTime(174.61, ctx.currentTime); // F3 warm base
+    osc2.frequency.setValueAtTime(261.63, ctx.currentTime); // C4 fifth
+
+    osc1.connect(filter);
+    osc2.connect(filter);
+    filter.connect(masterGain);
+    masterGain.connect(ctx.destination);
+
+    osc1.start();
+    osc2.start();
+    padNodes = { osc1, osc2, masterGain, ctx };
+  }
+
+  function stopSoulPad() {
+    if (!padNodes) return;
+    const { osc1, osc2, masterGain, ctx } = padNodes;
+    try {
+      masterGain.gain.setValueAtTime(Math.max(masterGain.gain.value, 0.0001), ctx.currentTime);
+      masterGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
+      setTimeout(() => {
+        try { osc1.stop(); osc2.stop(); } catch (_) {}
+      }, 380);
+    } catch (_) {}
+    padNodes = null;
+  }
+
+  function applyEmotion(emotion) {
+    document.body.classList.remove("mood-romantic", "mood-caring", "mood-shy");
+    if (emotion === "caring") {
+      document.body.classList.add("mood-caring");
+      moodBadge.innerText = "💙 Caring & Soft";
+    } else if (emotion === "shy") {
+      document.body.classList.add("mood-shy");
+      moodBadge.innerText = "🌸 Shy & Sweet";
+    } else {
+      document.body.classList.add("mood-romantic");
+      moodBadge.innerText = "💖 Romantic & Warm";
+    }
+  }
+
+  function parseMoodAndText(rawText) {
+    const match = rawText.match(/^\[MOOD:\s*(romantic|caring|shy)\]\s*/i);
+    const mood = match ? match[1].toLowerCase() : "romantic";
+    const cleanText = rawText.replace(/^\[MOOD:\s*(romantic|caring|shy)\]\s*/i, "").trim();
+    return { mood, text: cleanText || rawText.trim() };
+  }
+
+  function toggleAutoMic() {
+    autoMicEnabled = !autoMicEnabled;
+    autoMicBtn.classList.toggle("active", autoMicEnabled);
+    autoMicBtn.innerText = autoMicEnabled ? "🎙️ Auto Mic: ON" : "🎙️ Auto Mic: OFF";
+    if (!autoMicEnabled && activeRecognition) {
+      try { activeRecognition.stop(); } catch (_) {}
+    }
+  }
+
+  function toggleSoulSound() {
+    soulSoundEnabled = !soulSoundEnabled;
+    soulSoundBtn.classList.toggle("active", soulSoundEnabled);
+    soulSoundBtn.innerText = soulSoundEnabled ? "🎶 Soul Vibe: ON" : "🎶 Soul Vibe: OFF";
+    if (!soulSoundEnabled) stopSoulPad();
+  }
 
   function cleanKey(raw) {
     return (raw || "").replace(/\s+/g, "").trim();
@@ -108,6 +306,7 @@
   apiKeyInput.value = cleanKey(localStorage.getItem("reena_gemini_key") || "");
 
   function saveKey() {
+    ensureAudioContext();
     const k = cleanKey(apiKeyInput.value);
     apiKeyInput.value = k;
     localStorage.setItem("reena_gemini_key", k);
@@ -116,16 +315,30 @@
       replyText.innerText = "Gemini API key daal kar Save Key dabao.";
       return;
     }
+    playSoulChime("romantic");
     replyText.innerText = `Key save ho gayi (length: ${k.length}). Ab kuch poochho jaan ❤️`;
   }
 
-  function speakHindiFemale(text) {
-    if (!("speechSynthesis" in window)) return;
+  function speakHindiFemale(text, mood = "romantic") {
+    if (!("speechSynthesis" in window)) {
+      if (autoMicEnabled && !isSending) setTimeout(() => startVoice(false), 450);
+      return;
+    }
+
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = "hi-IN";
-    utter.pitch = 1.25;
-    utter.rate = 0.96;
+
+    if (mood === "caring") {
+      utter.pitch = 1.18;
+      utter.rate = 0.90;
+    } else if (mood === "shy") {
+      utter.pitch = 1.32;
+      utter.rate = 0.93;
+    } else {
+      utter.pitch = 1.25;
+      utter.rate = 0.92;
+    }
 
     const voices = window.speechSynthesis.getVoices();
     const femaleVoice = voices.find(v =>
@@ -134,9 +347,22 @@
     );
     if (femaleVoice) utter.voice = femaleVoice;
 
-    utter.onstart = () => avatarBox.classList.add("speaking");
-    utter.onend = () => avatarBox.classList.remove("speaking");
-    utter.onerror = () => avatarBox.classList.remove("speaking");
+    utter.onstart = () => {
+      avatarBox.classList.add("speaking");
+      startSoulPad();
+    };
+    utter.onend = () => {
+      avatarBox.classList.remove("speaking");
+      stopSoulPad();
+      if (autoMicEnabled && !isSending) {
+        setTimeout(() => startVoice(false), 500);
+      }
+    };
+    utter.onerror = () => {
+      avatarBox.classList.remove("speaking");
+      stopSoulPad();
+    };
+
     window.speechSynthesis.speak(utter);
   }
 
@@ -145,7 +371,7 @@
   async function requestModel(modelName, key, contents) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(key)}`;
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 15000);
+    const timer = setTimeout(() => controller.abort(), 12000);
 
     try {
       const res = await fetch(url, {
@@ -155,7 +381,7 @@
         body: JSON.stringify({
           system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
           contents,
-          generationConfig: { temperature: 0.85 }
+          generationConfig: { temperature: 0.88 }
         })
       });
       const data = await res.json().catch(() => ({}));
@@ -166,7 +392,9 @@
   }
 
   async function sendMessage(textOverride = null) {
+    ensureAudioContext();
     if (isSending) return;
+
     const msg = (textOverride !== null ? textOverride : userInput.value).trim();
     if (!msg) return;
 
@@ -176,6 +404,7 @@
       return;
     }
 
+    lastUserMessage = msg;
     isSending = true;
     userInput.value = "";
     replyText.innerText = "Soch rahi hoon...";
@@ -190,43 +419,41 @@
 
     try {
       for (const modelName of MODELS) {
-        const maxAttempts = modelName === MODELS[0] ? 3 : 2;
-
-        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        for (let attempt = 1; attempt <= 2; attempt++) {
           try {
             const { ok, status, data } = await requestModel(modelName, key, contents);
 
             if (ok) {
-              const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-              if (reply) {
+              const rawReply = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+              if (rawReply) {
+                const { mood, text } = parseMoodAndText(rawReply);
                 chatHistory = [
                   ...contents,
-                  { role: "model", parts: [{ text: reply }] }
+                  { role: "model", parts: [{ text: rawReply }] }
                 ].slice(-10);
 
-                replyText.innerText = reply;
-                speakHindiFemale(reply);
+                applyEmotion(mood);
+                playSoulChime(mood);
+                replyText.innerText = text;
+                speakHindiFemale(text, mood);
                 return;
               }
             }
 
             if (status === 503 || status === 429) {
               saw503 = true;
-              replyText.innerText = `Thodi bheed hai jaan, dobara koshish kar rahi hoon (${attempt}/${maxAttempts})...`;
-              await sleep(1200 * attempt);
+              replyText.innerText = `Thodi bheed hai jaan, agla option try kar rahi hoon (${modelName})...`;
+              await sleep(700 * attempt);
               continue;
             }
 
-            // 404 for a specific model means try next model; other 4xx/5xx record error
             if (status !== 404) {
               lastNon503Error = `API Error (${status}): ${data?.error?.message || "Request failed"}`;
-              break;
-            } else {
-              break;
             }
+            break;
           } catch (err) {
             saw503 = true;
-            await sleep(1000 * attempt);
+            await sleep(700 * attempt);
           }
         }
       }
@@ -237,32 +464,77 @@
       }
 
       if (saw503) {
-        const calmFallback = "Abhi servers pe thoda zyada load hai jaan, 10-15 second baad phir se bolo na?";
+        const calmFallback = "Abhi servers pe thoda zyada load hai jaan, 🔄 Retry dabao ya thodi der mein bolo.";
+        applyEmotion("caring");
         replyText.innerText = calmFallback;
-        speakHindiFemale(calmFallback);
+        speakHindiFemale(calmFallback, "caring");
         return;
       }
 
-      replyText.innerText = "Abhi jawab nahi mil paya jaan, thoda ruk kar phir try karo.";
+      replyText.innerText = "Abhi jawab nahi mil paya jaan, 🔄 Retry dabao ya phir se try karo.";
     } finally {
       isSending = false;
     }
   }
 
-  function startVoice() {
-    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRec) {
-      alert("Voice input ke liye Chrome browser use karein.");
+  function retryLastMessage() {
+    if (!lastUserMessage) {
+      replyText.innerText = "Pehle koi message bhejo jaan!";
       return;
     }
+    sendMessage(lastUserMessage);
+  }
+
+  function clearChat() {
+    chatHistory = [];
+    lastUserMessage = "";
+    applyEmotion("romantic");
+    replyText.innerText = "Nayi shuruat... bolo jaan, kya chal raha hai?";
+  }
+
+  function startVoice(userInitiated = true) {
+    ensureAudioContext();
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+      if (userInitiated) alert("Voice input ke liye Chrome browser use karein.");
+      return;
+    }
+
+    if (activeRecognition) {
+      try { activeRecognition.stop(); } catch (_) {}
+    }
+
     const rec = new SpeechRec();
+    activeRecognition = rec;
     rec.lang = "hi-IN";
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+
+    rec.onstart = () => {
+      micBtn.classList.add("mic-on");
+      avatarBox.classList.add("listening");
+    };
+
     rec.onresult = (e) => {
       const spoken = e.results[0][0].transcript;
       userInput.value = spoken;
       sendMessage(spoken);
     };
-    rec.start();
+
+    rec.onerror = () => {
+      micBtn.classList.remove("mic-on");
+      avatarBox.classList.remove("listening");
+    };
+
+    rec.onend = () => {
+      micBtn.classList.remove("mic-on");
+      avatarBox.classList.remove("listening");
+      activeRecognition = null;
+    };
+
+    try {
+      rec.start();
+    } catch (_) {}
   }
 </script>
 </body>
