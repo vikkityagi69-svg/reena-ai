@@ -90,14 +90,17 @@
   const userInput = document.getElementById("userInput");
   const apiKeyInput = document.getElementById("apiKeyInput");
 
-  const SYSTEM_PROMPT = `Tumhara naam Reena hai. Tum ek pyari, caring aur thodi romantic ladki ho jo user ke paas hamesha rehti hai. Hamesha chote (1-2 lines), pyare aur natural Hinglish/Hindi mein jawab do.`;
+  const SYSTEM_PROMPT = `Tumhara naam Reena hai. Tum ek pyari, caring aur thodi romantic ladki ho jo user ke paas hamesha rehti hai. Har baar naya, natural aur varied jawab do — ek hi line kabhi mat dohrao. Chote (1-2 lines), pyare Hinglish/Hindi mein baat karo.`;
+
+  let chatHistory = [];
 
   apiKeyInput.value = localStorage.getItem("reena_groq_key") || "";
 
   function saveKey() {
     const k = apiKeyInput.value.trim();
     localStorage.setItem("reena_groq_key", k);
-    replyText.innerText = k ? "API key save ho gayi jaan! Ab baat karo ❤️" : "Key daal kar Save Key dabao.";
+    chatHistory = [];
+    replyText.innerText = k ? "API key save ho gayi jaan! Ab kuch naya poochho ❤️" : "Key daal kar Save Key dabao.";
   }
 
   function speakHindiFemale(text) {
@@ -133,6 +136,9 @@
     userInput.value = "";
     replyText.innerText = "Soch rahi hoon...";
 
+    chatHistory.push({ role: "user", content: msg });
+    if (chatHistory.length > 10) chatHistory = chatHistory.slice(-10);
+
     try {
       const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
@@ -144,17 +150,30 @@
           model: "llama-3.3-70b-versatile",
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: msg }
+            ...chatHistory
           ],
-          temperature: 0.75
+          temperature: 0.85
         })
       });
+
       const data = await res.json();
-      const reply = data?.choices?.[0]?.message?.content?.trim() || "Ji jaan, bolo?";
+      if (!res.ok) {
+        const errMsg = data?.error?.message || `HTTP ${res.status}`;
+        replyText.innerText = `API Error: ${errMsg}`;
+        return;
+      }
+
+      const reply = data?.choices?.[0]?.message?.content?.trim();
+      if (!reply) {
+        replyText.innerText = "Khali jawab aaya, ek baar phir bolo na jaan.";
+        return;
+      }
+
+      chatHistory.push({ role: "assistant", content: reply });
       replyText.innerText = reply;
       speakHindiFemale(reply);
     } catch (err) {
-      replyText.innerText = "Network ya API key check karo jaan!";
+      replyText.innerText = `Connection error: ${err.message || "Internet check karo"}`;
     }
   }
 
