@@ -65,3 +65,143 @@
     <p>Always here for you ❤️</p>
   </div>
 
+  <div class="avatar-container" id="avatarBox">
+    <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Reena&backgroundColor=ffdfbf" alt="Reena">
+  </div>
+
+  <div class="chat-box">
+    <p id="replyText">"Hii jaan... main Reena hoon. Batao aaj main tumhare liye kya kar sakti hoon?"</p>
+  </div>
+
+  <div class="controls">
+    <input type="text" id="userInput" placeholder="Reena se kuch kaho..." onkeydown="if(event.key==='Enter') sendMessage()">
+    <button type="button" onclick="startVoice()" title="Bolkar poochein">🎤</button>
+    <button type="button" onclick="sendMessage()" title="Bhejein">➤</button>
+  </div>
+
+  <div class="api-bar">
+    <input type="text" id="apiKeyInput" placeholder="Gemini API Key (AIza...)">
+    <button type="button" onclick="saveKey()">Save Key</button>
+  </div>
+
+<script>
+  const avatarBox = document.getElementById("avatarBox");
+  const replyText = document.getElementById("replyText");
+  const userInput = document.getElementById("userInput");
+  const apiKeyInput = document.getElementById("apiKeyInput");
+
+  const SYSTEM_PROMPT = `Tumhara naam Reena hai. Tum ek pyari, caring aur thodi romantic ladki ho jo user ke paas hamesha rehti hai. Har baar naya, natural aur varied jawab do — ek hi line kabhi mat dohrao. Chote (1-2 lines), pyare Hinglish/Hindi mein baat karo.`;
+
+  let chatHistory = [];
+
+  function cleanKey(raw) {
+    return (raw || "").replace(/\s+/g, "").trim();
+  }
+
+  apiKeyInput.value = cleanKey(localStorage.getItem("reena_gemini_key") || "");
+
+  function saveKey() {
+    const k = cleanKey(apiKeyInput.value);
+    apiKeyInput.value = k;
+    localStorage.setItem("reena_gemini_key", k);
+    chatHistory = [];
+    if (!k) {
+      replyText.innerText = "Gemini API key daal kar Save Key dabao.";
+      return;
+    }
+    replyText.innerText = `Key save ho gayi (length: ${k.length}). Ab kuch poochho jaan ❤️`;
+  }
+
+  function speakHindiFemale(text) {
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "hi-IN";
+    utter.pitch = 1.25;
+    utter.rate = 0.96;
+
+    const voices = window.speechSynthesis.getVoices();
+    const femaleVoice = voices.find(v =>
+      v.lang.toLowerCase().includes("hi") &&
+      (v.name.toLowerCase().includes("female") || v.name.toLowerCase().includes("lekha") || v.name.toLowerCase().includes("google"))
+    );
+    if (femaleVoice) utter.voice = femaleVoice;
+
+    utter.onstart = () => avatarBox.classList.add("speaking");
+    utter.onend = () => avatarBox.classList.remove("speaking");
+    utter.onerror = () => avatarBox.classList.remove("speaking");
+    window.speechSynthesis.speak(utter);
+  }
+
+  async function sendMessage(textOverride = null) {
+    const msg = (textOverride !== null ? textOverride : userInput.value).trim();
+    if (!msg) return;
+    const key = cleanKey(localStorage.getItem("reena_gemini_key") || apiKeyInput.value);
+    if (!key) {
+      replyText.innerText = "Neeche Gemini API key daal kar Save Key dabao jaan!";
+      return;
+    }
+
+    userInput.value = "";
+    replyText.innerText = "Soch rahi hoon...";
+
+    const contents = [
+      ...chatHistory,
+      { role: "user", parts: [{ text: msg }] }
+    ].slice(-10);
+
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(key)}`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents,
+          generationConfig: { temperature: 0.85 }
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        const errMsg = data?.error?.message || `HTTP ${res.status}`;
+        replyText.innerText = `API Error (${res.status}): ${errMsg}`;
+        return;
+      }
+
+      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      if (!reply) {
+        replyText.innerText = "Khali jawab aaya, ek baar phir bolo na jaan.";
+        return;
+      }
+
+      chatHistory = [
+        ...contents,
+        { role: "model", parts: [{ text: reply }] }
+      ].slice(-10);
+
+      replyText.innerText = reply;
+      speakHindiFemale(reply);
+    } catch (err) {
+      replyText.innerText = `Connection error: ${err.message || "Internet check karo"}`;
+    }
+  }
+
+  function startVoice() {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+      alert("Voice input ke liye Chrome browser use karein.");
+      return;
+    }
+    const rec = new SpeechRec();
+    rec.lang = "hi-IN";
+    rec.onresult = (e) => {
+      const spoken = e.results[0][0].transcript;
+      userInput.value = spoken;
+      sendMessage(spoken);
+    };
+    rec.start();
+  }
+</script>
+</body>
+</html>
