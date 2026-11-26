@@ -39,7 +39,7 @@
     min-height: 95px; display: flex; align-items: center; justify-content: center;
     text-align: center; border: 1px solid rgba(255,110,199,0.3);
   }
-  #replyText { font-size: 16px; color: #ffe6f5; line-height: 1.5; }
+  #replyText { font-size: 16px; color: #ffe6f5; line-height: 1.5; word-break: break-word; }
 
   .controls { width: 100%; max-width: 420px; display: flex; gap: 10px; margin-bottom: 8px; }
   input {
@@ -80,7 +80,7 @@
   </div>
 
   <div class="api-bar">
-    <input type="password" id="apiKeyInput" placeholder="Groq API Key (gsk_...)">
+    <input type="text" id="apiKeyInput" placeholder="Gemini API Key (AIza...)">
     <button type="button" onclick="saveKey()">Save Key</button>
   </div>
 
@@ -94,13 +94,22 @@
 
   let chatHistory = [];
 
-  apiKeyInput.value = localStorage.getItem("reena_groq_key") || "";
+  function cleanKey(raw) {
+    return (raw || "").replace(/\s+/g, "").trim();
+  }
+
+  apiKeyInput.value = cleanKey(localStorage.getItem("reena_gemini_key") || "");
 
   function saveKey() {
-    const k = apiKeyInput.value.trim();
-    localStorage.setItem("reena_groq_key", k);
+    const k = cleanKey(apiKeyInput.value);
+    apiKeyInput.value = k;
+    localStorage.setItem("reena_gemini_key", k);
     chatHistory = [];
-    replyText.innerText = k ? "API key save ho gayi jaan! Ab kuch naya poochho ❤️" : "Key daal kar Save Key dabao.";
+    if (!k) {
+      replyText.innerText = "Gemini API key daal kar Save Key dabao.";
+      return;
+    }
+    replyText.innerText = `Key save ho gayi (length: ${k.length}). Ab kuch poochho jaan ❤️`;
   }
 
   function speakHindiFemale(text) {
@@ -127,49 +136,50 @@
   async function sendMessage(textOverride = null) {
     const msg = (textOverride !== null ? textOverride : userInput.value).trim();
     if (!msg) return;
-    const key = (localStorage.getItem("reena_groq_key") || apiKeyInput.value).trim();
+    const key = cleanKey(localStorage.getItem("reena_gemini_key") || apiKeyInput.value);
     if (!key) {
-      replyText.innerText = "Neeche Groq API key daal kar Save Key dabao jaan!";
+      replyText.innerText = "Neeche Gemini API key daal kar Save Key dabao jaan!";
       return;
     }
 
     userInput.value = "";
     replyText.innerText = "Soch rahi hoon...";
 
-    chatHistory.push({ role: "user", content: msg });
-    if (chatHistory.length > 10) chatHistory = chatHistory.slice(-10);
+    const contents = [
+      ...chatHistory,
+      { role: "user", parts: [{ text: msg }] }
+    ].slice(-10);
 
     try {
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`;
+      const res = await fetch(url, {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${key}`,
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-          messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            ...chatHistory
-          ],
-          temperature: 0.85
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents,
+          generationConfig: { temperature: 0.85 }
         })
       });
 
       const data = await res.json();
       if (!res.ok) {
         const errMsg = data?.error?.message || `HTTP ${res.status}`;
-        replyText.innerText = `API Error: ${errMsg}`;
+        replyText.innerText = `API Error (${res.status}): ${errMsg}`;
         return;
       }
 
-      const reply = data?.choices?.[0]?.message?.content?.trim();
+      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
       if (!reply) {
         replyText.innerText = "Khali jawab aaya, ek baar phir bolo na jaan.";
         return;
       }
 
-      chatHistory.push({ role: "assistant", content: reply });
+      chatHistory = [
+        ...contents,
+        { role: "model", parts: [{ text: reply }] }
+      ].slice(-10);
+
       replyText.innerText = reply;
       speakHindiFemale(reply);
     } catch (err) {
