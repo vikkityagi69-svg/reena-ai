@@ -92,7 +92,14 @@
 
   const SYSTEM_PROMPT = `Tumhara naam Reena hai. Tum ek pyari, caring aur thodi romantic ladki ho jo user ke paas hamesha rehti hai. Har baar naya, natural aur varied jawab do — ek hi line kabhi mat dohrao. Chote (1-2 lines), pyare Hinglish/Hindi mein baat karo.`;
 
+  const MODELS = [
+    "gemini-3.8-flash",
+    "gemini-2.5-flash",
+    "gemini-flash-latest"
+  ];
+
   let chatHistory = [];
+  let isSending = false;
 
   function cleanKey(raw) {
     return (raw || "").replace(/\s+/g, "").trim();
@@ -133,15 +140,43 @@
     window.speechSynthesis.speak(utter);
   }
 
+  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+  async function requestModel(modelName, key, contents) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(key)}`;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents,
+          generationConfig: { temperature: 0.85 }
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      return { ok: res.ok, status: res.status, data };
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   async function sendMessage(textOverride = null) {
+    if (isSending) return;
     const msg = (textOverride !== null ? textOverride : userInput.value).trim();
     if (!msg) return;
+
     const key = cleanKey(localStorage.getItem("reena_gemini_key") || apiKeyInput.value);
     if (!key) {
       replyText.innerText = "Neeche Gemini API key daal kar Save Key dabao jaan!";
       return;
     }
 
+    isSending = true;
     userInput.value = "";
     replyText.innerText = "Soch rahi hoon...";
 
@@ -150,40 +185,67 @@
       { role: "user", parts: [{ text: msg }] }
     ].slice(-10);
 
+    let lastNon503Error = null;
+    let saw503 = false;
+
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(key)}`;
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents,
-          generationConfig: { temperature: 0.85 }
-        })
-      });
+      for (const modelName of MODELS) {
+        const maxAttempts = modelName === MODELS[0] ? 3 : 2;
 
-      const data = await res.json();
-      if (!res.ok) {
-        const errMsg = data?.error?.message || `HTTP ${res.status}`;
-        replyText.innerText = `API Error (${res.status}): ${errMsg}`;
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+          try {
+            const { ok, status, data } = await requestModel(modelName, key, contents);
+
+            if (ok) {
+              const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+              if (reply) {
+                chatHistory = [
+                  ...contents,
+                  { role: "model", parts: [{ text: reply }] }
+                ].slice(-10);
+
+                replyText.innerText = reply;
+                speakHindiFemale(reply);
+                return;
+              }
+            }
+
+            if (status === 503 || status === 429) {
+              saw503 = true;
+              replyText.innerText = `Thodi bheed hai jaan, dobara koshish kar rahi hoon (${attempt}/${maxAttempts})...`;
+              await sleep(1200 * attempt);
+              continue;
+            }
+
+            // 404 for a specific model means try next model; other 4xx/5xx record error
+            if (status !== 404) {
+              lastNon503Error = `API Error (${status}): ${data?.error?.message || "Request failed"}`;
+              break;
+            } else {
+              break;
+            }
+          } catch (err) {
+            saw503 = true;
+            await sleep(1000 * attempt);
+          }
+        }
+      }
+
+      if (lastNon503Error) {
+        replyText.innerText = lastNon503Error;
         return;
       }
 
-      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-      if (!reply) {
-        replyText.innerText = "Khali jawab aaya, ek baar phir bolo na jaan.";
+      if (saw503) {
+        const calmFallback = "Abhi servers pe thoda zyada load hai jaan, 10-15 second baad phir se bolo na?";
+        replyText.innerText = calmFallback;
+        speakHindiFemale(calmFallback);
         return;
       }
 
-      chatHistory = [
-        ...contents,
-        { role: "model", parts: [{ text: reply }] }
-      ].slice(-10);
-
-      replyText.innerText = reply;
-      speakHindiFemale(reply);
-    } catch (err) {
-      replyText.innerText = `Connection error: ${err.message || "Internet check karo"}`;
+      replyText.innerText = "Abhi jawab nahi mil paya jaan, thoda ruk kar phir try karo.";
+    } finally {
+      isSending = false;
     }
   }
 
