@@ -2,536 +2,278 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Reena AI - Personal Assistant</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reena AI</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
   body {
-    background: radial-gradient(circle at top, #36103a, #13071d 55%, #08040c 100%);
-    color: #fff; min-height: 100vh; width: 100%; display: flex; flex-direction: column;
+    background: radial-gradient(circle at top, #3b103d, #12061c 70%, #07030b 100%);
+    color: #fff; min-height: 100vh; display: flex; flex-direction: column;
     justify-content: space-between; align-items: center; padding: 16px; gap: 12px;
-    transition: background 0.6s ease;
   }
-  body.mood-romantic {
-    background: radial-gradient(circle at top, #4d1038, #1c071b 55%, #09030a 100%);
-  }
-  body.mood-caring {
-    background: radial-gradient(circle at top, #1b2849, #0e1329 55%, #060812 100%);
-  }
-  body.mood-shy {
-    background: radial-gradient(circle at top, #461742, #1d0924 55%, #09030e 100%);
+  body.mood-caring { background: radial-gradient(circle at top, #1b2a4a, #0d1226 75%); }
+  body.mood-shy { background: radial-gradient(circle at top, #4b1544, #1a0721 75%); }
+
+  .header { text-align: center; }
+  .header h1 { font-size: 24px; color: #ff79ce; }
+  .header p { font-size: 12px; color: #e0b5d4; margin-top: 2px; }
+
+  .badges { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .pill {
+    padding: 5px 12px; border-radius: 999px; font-size: 12px;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,121,206,0.35);
   }
 
-  .header { text-align: center; margin-top: 2px; }
-  .header h1 { font-size: 24px; color: #ff79ce; letter-spacing: 1px; }
-  .header p { font-size: 12.5px; color: #e2b6d6; margin-top: 2px; }
-
-  .top-badges { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-  .mood-pill {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 5px 13px; border-radius: 999px; font-size: 12px;
-    background: rgba(255, 255, 255, 0.09);
-    border: 1px solid rgba(255, 130, 210, 0.35);
-    color: #ffd6f0;
+  .avatar {
+    width: 175px; height: 175px; border-radius: 50%; overflow: hidden;
+    border: 3px solid #ff79ce; box-shadow: 0 0 35px rgba(255,121,206,0.45);
   }
-
-  .avatar-container {
-    position: relative; width: 170px; height: 170px; border-radius: 50%;
-    display: flex; justify-content: center; align-items: center;
-    box-shadow: 0 0 38px rgba(255, 110, 199, 0.45);
-    border: 3px solid #ff79ce; overflow: hidden;
-    transition: transform 0.35s ease, box-shadow 0.4s ease, border-color 0.4s ease;
-  }
-  .avatar-container.speaking {
-    animation: pulse 0.95s infinite alternate;
-    box-shadow: 0 0 68px rgba(255, 85, 180, 0.9);
-  }
-  .avatar-container.listening {
-    border-color: #7cf7ff;
-    box-shadow: 0 0 55px rgba(124, 247, 255, 0.65);
-  }
-  .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
-
-  @keyframes pulse {
-    from { transform: scale(1); }
-    to { transform: scale(1.06); }
-  }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
   .chat-box {
-    width: 100%; max-width: 430px; background: rgba(255,255,255,0.08);
-    border-radius: 18px; padding: 14px 16px;
-    min-height: 86px; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 6px;
-    text-align: center; border: 1px solid rgba(255,110,199,0.3);
+    width: 100%; max-width: 430px; min-height: 90px; padding: 14px;
+    border-radius: 16px; background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,121,206,0.3); text-align: center;
+    display: flex; align-items: center; justify-content: center;
   }
-  #replyText { font-size: 15.5px; color: #fff0fa; line-height: 1.5; word-break: break-word; }
+  #replyText { font-size: 15px; line-height: 1.5; color: #fff0fa; }
 
-  .sub-bar {
-    width: 100%; max-width: 430px; display: flex; flex-wrap: wrap;
-    justify-content: space-between; align-items: center; gap: 6px;
+  .bar { width: 100%; max-width: 430px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: space-between; }
+  .btn-chip {
+    padding: 7px 11px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.12); color: #fff; font-size: 12px; cursor: pointer;
   }
-  .toggle-chip {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 6px 10px; border-radius: 11px; font-size: 11.5px;
-    background: rgba(255,255,255,0.08); color: #f5d8ec;
-    border: 1px solid rgba(255,255,255,0.14); cursor: pointer;
+  .btn-chip.on { background: rgba(255,77,166,0.3); border-color: #ff79ce; }
+
+  .panel {
+    width: 100%; max-width: 430px; display: none; flex-direction: column; gap: 8px;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 14px; padding: 12px;
   }
-  .toggle-chip.active {
-    background: rgba(255, 77, 166, 0.25);
-    border-color: #ff79ce; color: #fff;
+  .panel.show { display: flex; }
+  .panel input {
+    width: 100%; padding: 9px 12px; border-radius: 10px; border: none;
+    background: rgba(255,255,255,0.15); color: #fff; font-size: 13px;
   }
-  .action-group { display: flex; gap: 6px; }
-  .mini-btn {
-    padding: 6px 10px; border-radius: 11px; font-size: 11.5px;
-    background: rgba(255,255,255,0.12); color: #fff;
-    border: 1px solid rgba(255,255,255,0.15); cursor: pointer;
+  .save-btn {
+    padding: 9px 14px; border-radius: 10px; border: none; color: #fff; font-size: 13px;
+    background: linear-gradient(135deg, #ff4da6, #a64dff); cursor: pointer;
   }
 
-  .controls { width: 100%; max-width: 430px; display: flex; gap: 10px; }
-  input {
-    flex: 1; padding: 13px 16px; border-radius: 25px; border: none; outline: none;
+  .controls { width: 100%; max-width: 430px; display: flex; gap: 8px; }
+  #msgInput {
+    flex: 1; padding: 13px 15px; border-radius: 24px; border: none; outline: none;
     background: rgba(255,255,255,0.14); color: #fff; font-size: 15px;
   }
-  .round-btn {
-    width: 50px; height: 50px; border-radius: 50%; border: none;
-    background: linear-gradient(135deg, #ff4da6, #a64dff); color: #fff;
-    font-size: 19px; cursor: pointer; box-shadow: 0 4px 15px rgba(255,77,166,0.4);
-  }
-  .round-btn.mic-on {
-    background: linear-gradient(135deg, #00d2ff, #7b2cbf);
-  }
-
-  .drawer {
-    width: 100%; max-width: 430px; background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.14); border-radius: 14px;
-    padding: 12px; display: none; flex-direction: column; gap: 8px;
-  }
-  .drawer.open { display: flex; }
-  .drawer label { font-size: 11px; color: #d8a7ca; }
-  .drawer input { padding: 8px 12px; font-size: 12px; border-radius: 10px; width: 100%; }
-  .drawer-row { display: flex; gap: 8px; }
-  .save-btn {
-    padding: 9px 14px; border-radius: 10px; font-size: 12px; border: none;
-    background: linear-gradient(135deg, #ff4da6, #a64dff); color: #fff; cursor: pointer;
-  }
-  .notes-list {
-    max-height: 120px; overflow-y: auto; font-size: 12px; color: #ffe6f5;
-    display: flex; flex-direction: column; gap: 5px;
-  }
-  .note-item {
-    background: rgba(255,255,255,0.07); padding: 6px 10px; border-radius: 8px;
-    display: flex; justify-content: space-between; align-items: center;
+  .circle-btn {
+    width: 48px; height: 48px; border-radius: 50%; border: none; color: #fff; font-size: 18px;
+    background: linear-gradient(135deg, #ff4da6, #a64dff); cursor: pointer;
   }
 </style>
 </head>
-<body class="mood-romantic">
+<body>
 
   <div class="header">
-    <h1>✨ Reena AI ✨</h1>
-    <p>Always here for you ❤️</p>
+    <h1>Reena AI</h1>
+    <p>Always here for you</p>
   </div>
 
-  <div class="top-badges">
-    <div class="mood-pill" id="moodBadge">💖 Romantic & Warm</div>
-    <div class="mood-pill" id="engineBadge">⚡ Smart Dual AI</div>
+  <div class="badges">
+    <div class="pill" id="moodTag">Romantic</div>
+    <div class="pill" id="modelTag">Gemini + OpenRouter</div>
   </div>
 
-  <div class="avatar-container" id="avatarBox">
+  <div class="avatar">
     <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Reena&backgroundColor=ffdfbf" alt="Reena">
   </div>
 
   <div class="chat-box">
-    <p id="replyText">"Hii jaan... main Reena hoon. Batao aaj main tumhare liye kya kar sakti hoon?"</p>
+    <p id="replyText">Hii jaan... main Reena hoon. Pehle Keys mein apni key save karo aur kuch bolo.</p>
   </div>
 
-  <div class="sub-bar">
-    <button type="button" class="toggle-chip active" id="autoMicBtn" onclick="toggleAutoMic()">🎙️ Auto Mic: ON</button>
-    <button type="button" class="toggle-chip active" id="soulSoundBtn" onclick="toggleSoulSound()">🎶 Soul: ON</button>
-    <div class="action-group">
-      <button type="button" class="mini-btn" onclick="retryLastMessage()">🔄 Retry</button>
-      <button type="button" class="mini-btn" onclick="toggleDrawer('notesDrawer')">📝 Notes</button>
-      <button type="button" class="mini-btn" onclick="toggleDrawer('settingsDrawer')">⚙️ Keys</button>
-    </div>
+  <div class="bar">
+    <button type="button" class="btn-chip on" id="micToggle" onclick="toggleMic()">Auto Mic: ON</button>
+    <button type="button" class="btn-chip on" id="soulToggle" onclick="toggleSoul()">Soul: ON</button>
+    <button type="button" class="btn-chip" onclick="retryMsg()">Retry</button>
+    <button type="button" class="btn-chip" onclick="openPanel('keysPanel')">Keys</button>
+    <button type="button" class="btn-chip" onclick="openPanel('notesPanel')">Notes</button>
   </div>
 
-  <div class="drawer" id="notesDrawer">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <label>📝 Saved Notes</label>
-      <button type="button" class="mini-btn" onclick="clearNotes()">Clear All</button>
-    </div>
-    <div class="notes-list" id="notesList"></div>
+  <div class="panel" id="keysPanel">
+    <input type="text" id="gKey" placeholder="Gemini API Key (AIza...)">
+    <input type="text" id="orKey" placeholder="OpenRouter API Key (sk-or-... optional)">
+    <button type="button" class="save-btn" onclick="saveKeys()">Save Keys</button>
   </div>
 
-  <div class="drawer" id="settingsDrawer">
-    <label>1. Google AI Studio Key (Primary)</label>
-    <input type="text" id="geminiKeyInput" placeholder="Gemini API Key (AIza...)">
-    <label>2. OpenRouter API Key (503 Backup)</label>
-    <input type="text" id="openRouterKeyInput" placeholder="OpenRouter Key (sk-or-...)">
-    <label>3. ElevenLabs API Key & Voice ID (Optional)</label>
-    <div class="drawer-row">
-      <input type="text" id="elevenKeyInput" placeholder="ElevenLabs Key">
-      <input type="text" id="elevenVoiceInput" placeholder="Voice ID (e.g. 21m00Tcm4TlvDq8ikWAM)">
-    </div>
-    <div class="drawer-row" style="justify-content:space-between; margin-top:4px;">
-      <button type="button" class="mini-btn" onclick="clearChat()">🧹 Reset Chat</button>
-      <button type="button" class="save-btn" onclick="saveSettings()">✅ Save Settings</button>
-    </div>
+  <div class="panel" id="notesPanel">
+    <div id="notesBox" style="font-size:12px;">Koi note nahi hai.</div>
   </div>
 
   <div class="controls">
-    <input type="text" id="userInput" placeholder="Reena se kuch kaho..." onkeydown="if(event.key==='Enter') sendMessage()">
-    <button type="button" class="round-btn" id="micBtn" onclick="startVoice(true)" title="Bolkar poochein">🎤</button>
-    <button type="button" class="round-btn" id="sendBtn" onclick="sendMessage()" title="Bhejein">➤</button>
+    <input type="text" id="msgInput" placeholder="Reena se kuch kaho...">
+    <button type="button" class="circle-btn" onclick="listenVoice()">🎤</button>
+    <button type="button" class="circle-btn" onclick="sendChat()">➤</button>
   </div>
 
 <script>
-  window.onerror = function(msg, line, col) {
-    const rt = document.getElementById("replyText");
-    if (rt) rt.innerText = "Script Error: " + msg + " (Line " + line + ")";
-  };
-
-  const avatarBox = document.getElementById("avatarBox");
-  const replyText = document.getElementById("replyText");
-  const userInput = document.getElementById("userInput");
-  const moodBadge = document.getElementById("moodBadge");
-  const engineBadge = document.getElementById("engineBadge");
-  const autoMicBtn = document.getElementById("autoMicBtn");
-  const soulSoundBtn = document.getElementById("soulSoundBtn");
-  const micBtn = document.getElementById("micBtn");
-
-  const geminiKeyInput = document.getElementById("geminiKeyInput");
-  const openRouterKeyInput = document.getElementById("openRouterKeyInput");
-  const elevenKeyInput = document.getElementById("elevenKeyInput");
-  const elevenVoiceInput = document.getElementById("elevenVoiceInput");
-
-  const SYSTEM_PROMPT = `Tumhara naam Reena hai. Tum ek pyari, caring, thodi sharmaati aur romantic personal assistant ho jo user ke paas hamesha rehti hai.
-Har jawab ke bilkul shuru mein emotion tag likho: [MOOD: romantic], [MOOD: caring], ya [MOOD: shy].
-Agar user koi note likhne ko kahe, toh emotion tag ke baad sirf yeh JSON likho:
-{"tool":"save_note","text":"..."}
-Warna chote (1-2 lines), dil ko chhoo lene wale, bilkul naye aur varied Hinglish/Hindi mein jawab do. Pichle kisi bhi jawab ke shabd ya line ko kabhi mat dohrao.`;
-
-  const GEMINI_MODELS = [
-    "gemini-flash-latest",
-    "gemini-2.5-flash",
-    "gemini-3.8-flash"
-  ];
-
-  let chatHistory = [];
-  let lastUserMessage = "";
-  let isSending = false;
-  let autoMicEnabled = true;
-  let soulSoundEnabled = true;
-  let activeRecognition = null;
-  let currentAudio = null;
-
+  let history = [];
+  let lastMsg = "";
+  let autoMic = true;
+  let soulOn = true;
   let audioCtx = null;
-  let padNodes = null;
 
-  function ensureAudioContext() {
-    if (!audioCtx) {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if (Ctx) audioCtx = new Ctx();
+  document.getElementById("gKey").value = localStorage.getItem("r_gkey") || "";
+  document.getElementById("orKey").value = localStorage.getItem("r_orkey") || "";
+
+  document.getElementById("msgInput").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") sendChat();
+  });
+
+  function openPanel(id) {
+    const p = document.getElementById(id);
+    const show = !p.classList.contains("show");
+    document.querySelectorAll(".panel").forEach(el => el.classList.remove("show"));
+    if (show) {
+      p.classList.add("show");
+      if (id === "notesPanel") showNotes();
     }
-    if (audioCtx && audioCtx.state === "suspended") {
-      audioCtx.resume().catch(() => {});
-    }
-    return audioCtx;
   }
 
-  function playSoulChime(emotion = "romantic") {
-    if (!soulSoundEnabled) return;
-    const ctx = ensureAudioContext();
-    if (!ctx) return;
+  function saveKeys() {
+    const gk = document.getElementById("gKey").value.trim();
+    const ok = document.getElementById("orKey").value.trim();
+    localStorage.setItem("r_gkey", gk);
+    localStorage.setItem("r_orkey", ok);
+    history = [];
+    document.getElementById("keysPanel").classList.remove("show");
+    document.getElementById("replyText").innerText = "Keys save ho gayi jaan! Ab kuch likho ya bolo.";
+    playChime();
+  }
 
-    const freqs = emotion === "caring"
-      ? [261.63, 329.63, 392.00, 493.88]
-      : emotion === "shy"
-      ? [293.66, 349.23, 440.00, 523.25]
-      : [220.00, 277.18, 329.63, 415.30];
+  function toggleMic() {
+    autoMic = !autoMic;
+    const b = document.getElementById("micToggle");
+    b.innerText = "Auto Mic: " + (autoMic ? "ON" : "OFF");
+    b.classList.toggle("on", autoMic);
+  }
 
-    freqs.forEach((freq, idx) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = idx % 2 === 0 ? "sine" : "triangle";
-      osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.08);
-      gain.gain.setValueAtTime(0.0001, ctx.currentTime + idx * 0.08);
-      gain.gain.exponentialRampToValueAtTime(0.024, ctx.currentTime + idx * 0.08 + 0.16);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + idx * 0.08 + 1.3);
+  function toggleSoul() {
+    soulOn = !soulOn;
+    const b = document.getElementById("soulToggle");
+    b.innerText = "Soul: " + (soulOn ? "ON" : "OFF");
+    b.classList.toggle("on", soulOn);
+  }
+
+  function playChime() {
+    if (!soulOn) return;
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = 329.63;
+      gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.9);
       osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(ctx.currentTime + idx * 0.08);
-      osc.stop(ctx.currentTime + idx * 0.08 + 1.35);
-    });
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.95);
+    } catch (e) {}
   }
 
-  function startSoulPad() {
-    if (!soulSoundEnabled || padNodes) return;
-    const ctx = ensureAudioContext();
-    if (!ctx) return;
-
-    const masterGain = ctx.createGain();
-    masterGain.gain.setValueAtTime(0.0001, ctx.currentTime);
-    masterGain.gain.exponentialRampToValueAtTime(0.02, ctx.currentTime + 0.7);
-
-    const filter = ctx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.setValueAtTime(600, ctx.currentTime);
-
-    const osc1 = ctx.createOscillator();
-    const osc2 = ctx.createOscillator();
-    osc1.type = "sine";
-    osc2.type = "sine";
-    osc1.frequency.setValueAtTime(174.61, ctx.currentTime);
-    osc2.frequency.setValueAtTime(261.63, ctx.currentTime);
-
-    osc1.connect(filter);
-    osc2.connect(filter);
-    filter.connect(masterGain);
-    masterGain.connect(ctx.destination);
-
-    osc1.start();
-    osc2.start();
-    padNodes = { osc1, osc2, masterGain, ctx };
-  }
-
-  function stopSoulPad() {
-    if (!padNodes) return;
-    const { osc1, osc2, masterGain, ctx } = padNodes;
-    try {
-      masterGain.gain.setValueAtTime(Math.max(masterGain.gain.value, 0.0001), ctx.currentTime);
-      masterGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
-      setTimeout(() => {
-        try { osc1.stop(); osc2.stop(); } catch (_) {}
-      }, 380);
-    } catch (_) {}
-    padNodes = null;
-  }
-
-  function cleanStr(raw) {
-    return (raw || "").replace(/\s+/g, "").trim();
-  }
-
-  geminiKeyInput.value = cleanStr(localStorage.getItem("reena_gemini_key") || "");
-  openRouterKeyInput.value = cleanStr(localStorage.getItem("reena_openrouter_key") || "");
-  elevenKeyInput.value = cleanStr(localStorage.getItem("reena_eleven_key") || "");
-  elevenVoiceInput.value = cleanStr(localStorage.getItem("reena_eleven_voice") || "");
-
-  if (!geminiKeyInput.value && !openRouterKeyInput.value) {
-    document.getElementById("settingsDrawer").classList.add("open");
-  }
-
-  function toggleDrawer(id) {
-    const el = document.getElementById(id);
-    const willOpen = !el.classList.contains("open");
-    document.querySelectorAll(".drawer").forEach(d => d.classList.remove("open"));
-    if (willOpen) {
-      el.classList.add("open");
-      if (id === "notesDrawer") renderNotes();
+  function speak(text) {
+    playChime();
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "hi-IN";
+      u.pitch = 1.25;
+      u.onend = function() {
+        if (autoMic) setTimeout(listenVoice, 400);
+      };
+      window.speechSynthesis.speak(u);
     }
   }
 
-  function saveSettings() {
-    ensureAudioContext();
-    const gk = cleanStr(geminiKeyInput.value);
-    const ok = cleanStr(openRouterKeyInput.value);
-    const ek = cleanStr(elevenKeyInput.value);
-    const ev = cleanStr(elevenVoiceInput.value);
-
-    geminiKeyInput.value = gk;
-    openRouterKeyInput.value = ok;
-    elevenKeyInput.value = ek;
-    elevenVoiceInput.value = ev;
-
-    localStorage.setItem("reena_gemini_key", gk);
-    localStorage.setItem("reena_openrouter_key", ok);
-    localStorage.setItem("reena_eleven_key", ek);
-    localStorage.setItem("reena_eleven_voice", ev);
-
-    chatHistory = [];
-    document.getElementById("settingsDrawer").classList.remove("open");
-    playSoulChime("romantic");
-    replyText.innerText = "Settings save ho gayi jaan ❤️ Ab bolo, main sun rahi hoon!";
+  function addNote(txt) {
+    const arr = JSON.parse(localStorage.getItem("r_notes") || "[]");
+    arr.unshift(txt);
+    localStorage.setItem("r_notes", JSON.stringify(arr.slice(0, 20)));
   }
 
-  function getNotes() {
-    try { return JSON.parse(localStorage.getItem("reena_notes") || "[]"); }
-    catch { return []; }
+  function showNotes() {
+    const arr = JSON.parse(localStorage.getItem("r_notes") || "[]");
+    document.getElementById("notesBox").innerHTML = arr.length
+      ? arr.map(n => "<div style='padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.1);'>" + n + "</div>").join("")
+      : "Koi note nahi hai.";
   }
 
-  function addNote(text) {
-    const notes = getNotes();
-    notes.unshift({ text, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) });
-    localStorage.setItem("reena_notes", JSON.stringify(notes.slice(0, 30)));
-    renderNotes();
-  }
-
-  function renderNotes() {
-    const list = document.getElementById("notesList");
-    const notes = getNotes();
-    if (!notes.length) {
-      list.innerHTML = `<div style="opacity:0.65;">Abhi koi note save nahi hai.</div>`;
-      return;
-    }
-    list.innerHTML = notes.map((n, i) => `
-      <div class="note-item">
-        <span>${n.text} <small style="opacity:0.6;">(${n.time})</small></span>
-        <button type="button" class="mini-btn" style="padding:2px 6px;" onclick="deleteNote(${i})">✕</button>
-      </div>
-    `).join("");
-  }
-
-  function deleteNote(idx) {
-    const notes = getNotes();
-    notes.splice(idx, 1);
-    localStorage.setItem("reena_notes", JSON.stringify(notes));
-    renderNotes();
-  }
-
-  function clearNotes() {
-    localStorage.removeItem("reena_notes");
-    renderNotes();
-  }
-
-  function applyEmotion(emotion) {
-    document.body.classList.remove("mood-romantic", "mood-caring", "mood-shy");
-    if (emotion === "caring") {
+  function setMood(m) {
+    document.body.classList.remove("mood-caring", "mood-shy");
+    if (m === "caring") {
       document.body.classList.add("mood-caring");
-      moodBadge.innerText = "💙 Caring & Soft";
-    } else if (emotion === "shy") {
+      document.getElementById("moodTag").innerText = "Caring";
+    } else if (m === "shy") {
       document.body.classList.add("mood-shy");
-      moodBadge.innerText = "🌸 Shy & Sweet";
+      document.getElementById("moodTag").innerText = "Shy";
     } else {
-      document.body.classList.add("mood-romantic");
-      moodBadge.innerText = "💖 Romantic & Warm";
+      document.getElementById("moodTag").innerText = "Romantic";
     }
   }
 
-  function parseReply(rawText) {
-    const match = rawText.match(/^\[MOOD:\s*(romantic|caring|shy)\]\s*/i);
-    const mood = match ? match[1].toLowerCase() : "romantic";
-    let body = rawText.replace(/^\[MOOD:\s*(romantic|caring|shy)\]\s*/i, "").trim();
-
-    try {
-      const cleanJson = body.replace(/```json|```/g, "").trim();
-      if (cleanJson.startsWith("{") && cleanJson.endsWith("}")) {
-        const parsed = JSON.parse(cleanJson);
-        if (parsed.tool === "save_note" && parsed.text) {
-          addNote(parsed.text);
-          body = `Maine note likh liya hai jaan: "${parsed.text}" 📝`;
-        }
+  async function callGemini(key, contents) {
+    const sys = "Tum Reena ho — pyari, caring aur romantic assistant. Jawab ke shuru mein [romantic], [caring], ya [shy] likho. 1-2 choti lines mein naya Hinglish jawab do. Agar user note likhne ko kahe toh likho: NOTE: <text>";
+    const models = ["gemini-flash-latest", "gemini-2.5-flash", "gemini-3.8-flash"];
+    for (const m of models) {
+      const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + m + ":generateContent?key=" + encodeURIComponent(key), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: sys }] },
+          contents: contents,
+          generationConfig: { temperature: 1.0 }
+        })
+      });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.candidates && d.candidates[0] && d.candidates[0].content) {
+        const t = d.candidates[0].content.parts[0].text.trim();
+        if (t) return { text: t, src: m };
       }
-    } catch (_) {}
-
-    return { mood, text: body || rawText.trim() };
-  }
-
-  function toggleAutoMic() {
-    autoMicEnabled = !autoMicEnabled;
-    autoMicBtn.classList.toggle("active", autoMicEnabled);
-    autoMicBtn.innerText = autoMicEnabled ? "🎙️ Auto Mic: ON" : "🎙️ Auto Mic: OFF";
-    if (!autoMicEnabled && activeRecognition) {
-      try { activeRecognition.stop(); } catch (_) {}
     }
+    return null;
   }
 
-  function toggleSoulSound() {
-    soulSoundEnabled = !soulSoundEnabled;
-    soulSoundBtn.classList.toggle("active", soulSoundEnabled);
-    soulSoundBtn.innerText = soulSoundEnabled ? "🎶 Soul: ON" : "🎶 Soul: OFF";
-    if (!soulSoundEnabled) stopSoulPad();
-  }
-
-  function finishSpeakingFlow() {
-    avatarBox.classList.remove("speaking");
-    stopSoulPad();
-    if (autoMicEnabled && !isSending) {
-      setTimeout(() => startVoice(false), 500);
+  async function callOpenRouter(key, contents) {
+    const msgs = [{ role: "system", content: "Tum Reena ho — pyari aur romantic assistant. Chota naya Hinglish jawab do." }];
+    contents.forEach(c => msgs.push({ role: c.role === "model" ? "assistant" : "user", content: c.parts[0].text }));
+    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + key, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: "openrouter/free", messages: msgs, temperature: 1.0 })
+    });
+    const d = await r.json().catch(() => ({}));
+    if (r.ok && d.choices && d.choices[0] && d.choices[0].message) {
+      return { text: d.choices[0].message.content.trim(), src: "OpenRouter" };
     }
+    return null;
   }
 
-  async function speakReply(text, mood = "romantic") {
-    if (currentAudio) {
-      try { currentAudio.pause(); } catch (_) {}
-      currentAudio = null;
-    }
-    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  async function sendChat(overrideText) {
+    const input = document.getElementById("msgInput");
+    const msg = (overrideText || input.value).trim();
+    if (!msg) return;
 
-    const elevenKey = cleanStr(localStorage.getItem("reena_eleven_key") || "");
-    const elevenVoice = cleanStr(localStorage.getItem("reena_eleven_voice") || "21m00Tcm4TlvDq8ikWAM");
-
-    if (elevenKey) {
-      try {
-        const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(elevenVoice)}`, {
-          method: "POST",
-          headers: {
-            "xi-api-key": elevenKey,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            text,
-            model_id: "eleven_multilingual_v2"
-          })
-        });
-        if (res.ok) {
-          const blob = await res.blob();
-          const url = URL.createObjectURL(blob);
-          const audio = new Audio(url);
-          currentAudio = audio;
-          audio.onplay = () => {
-            avatarBox.classList.add("speaking");
-            startSoulPad();
-          };
-          audio.onended = () => {
-            URL.revokeObjectURL(url);
-            finishSpeakingFlow();
-          };
-          audio.onerror = () => {
-            URL.revokeObjectURL(url);
-            speakWithBrowserTTS(text, mood);
-          };
-          await audio.play();
-          return;
-        }
-      } catch (_) {}
-    }
-
-    speakWithBrowserTTS(text, mood);
-  }
-
-  function speakWithBrowserTTS(text, mood) {
-    if (!("speechSynthesis" in window)) {
-      finishSpeakingFlow();
+    const gk = (localStorage.getItem("r_gkey") || "").trim();
+    const ok = (localStorage.getItem("r_orkey") || "").trim();
+    if (!gk && !ok) {
+      openPanel("keysPanel");
+      document.getElementById("replyText").innerText = "Pehle Gemini ya OpenRouter key daal kar Save Keys dabao.";
       return;
     }
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "hi-IN";
-    utter.pitch = mood === "shy" ? 1.32 : mood === "caring" ? 1.18 : 1.25;
-    utter.rate = 0.92;
 
-    const voices = window.speechSynthesis.getVoices();
-    const femaleVoice = voices.find(v =>
-      v.lang.toLowerCase().includes("hi") &&
-      (v.name.toLowerCase().includes("female") || v.name.toLowerCase().includes("lekha") || v.name.toLowerCase().includes("google"))
-    );
-    if (femaleVoice) utter.voice = femaleVoice;
+    lastMsg = msg;
+    input.value = "";
+    document.getElementById("replyText").innerText = "Soch rahi hoon...";
 
-    utter.onstart = () => {
-      avatarBox.classList.add("speaking");
-      startSoulPad();
-    };
-    utter.onend = finishSpeakingFlow;
-    utter.onerror = finishSpeakingFlow;
-    window.speechSynthesis.speak(utter);
-  }
-
-  async function tryGemini(geminiKey, contents) {
-    if (!geminiKey) return { err: "No Gemini key" };
-    let lastErr = "Gemini busy";
-    for (const modelName of GEMINI_MODELS) {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 11000);
-      try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(geminiKey)}`;
-        const res = await fetch(url, {
-          method: "POST",
-          headers
+    const contents
