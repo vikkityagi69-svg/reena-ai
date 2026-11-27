@@ -9,7 +9,7 @@
   body {
     background: radial-gradient(circle at top, #36103a, #13071d 55%, #08040c 100%);
     color: #fff; min-height: 100vh; display: flex; flex-direction: column;
-    justify-content: space-between; align-items: center; padding: 18px; gap: 14px;
+    justify-content: space-between; align-items: center; padding: 16px; gap: 12px;
     transition: background 0.6s ease;
   }
   body.mood-romantic {
@@ -22,20 +22,21 @@
     background: radial-gradient(circle at top, #461742, #1d0924 55%, #09030e 100%);
   }
 
-  .header { text-align: center; margin-top: 4px; }
-  .header h1 { font-size: 25px; color: #ff79ce; letter-spacing: 1px; text-shadow: 0 0 18px rgba(255, 121, 206, 0.35); }
-  .header p { font-size: 13px; color: #e2b6d6; margin-top: 3px; }
+  .header { text-align: center; margin-top: 2px; }
+  .header h1 { font-size: 24px; color: #ff79ce; letter-spacing: 1px; text-shadow: 0 0 18px rgba(255, 121, 206, 0.35); }
+  .header p { font-size: 12.5px; color: #e2b6d6; margin-top: 2px; }
 
+  .top-badges { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
   .mood-pill {
     display: inline-flex; align-items: center; gap: 6px;
-    padding: 5px 14px; border-radius: 999px; font-size: 12px;
+    padding: 5px 13px; border-radius: 999px; font-size: 12px;
     background: rgba(255, 255, 255, 0.09);
     border: 1px solid rgba(255, 130, 210, 0.35);
     color: #ffd6f0; backdrop-filter: blur(8px);
   }
 
   .avatar-container {
-    position: relative; width: 190px; height: 190px; border-radius: 50%;
+    position: relative; width: 175px; height: 175px; border-radius: 50%;
     display: flex; justify-content: center; align-items: center;
     box-shadow: 0 0 38px rgba(255, 110, 199, 0.45);
     border: 3px solid #ff79ce; overflow: hidden;
@@ -57,21 +58,21 @@
   }
 
   .chat-box {
-    width: 100%; max-width: 420px; background: rgba(255,255,255,0.07);
-    backdrop-filter: blur(12px); border-radius: 18px; padding: 15px 16px;
-    min-height: 92px; display: flex; flex-direction: column;
+    width: 100%; max-width: 430px; background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(12px); border-radius: 18px; padding: 14px 16px;
+    min-height: 86px; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 6px;
     text-align: center; border: 1px solid rgba(255,110,199,0.3);
   }
   #replyText { font-size: 15.5px; color: #fff0fa; line-height: 1.5; word-break: break-word; }
 
   .sub-bar {
-    width: 100%; max-width: 420px; display: flex; flex-wrap: wrap;
-    justify-content: space-between; align-items: center; gap: 8px;
+    width: 100%; max-width: 430px; display: flex; flex-wrap: wrap;
+    justify-content: space-between; align-items: center; gap: 6px;
   }
   .toggle-chip {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 7px 12px; border-radius: 12px; font-size: 12px;
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 10px; border-radius: 11px; font-size: 11.5px;
     background: rgba(255,255,255,0.08); color: #f5d8ec;
     border: 1px solid rgba(255,255,255,0.14); cursor: pointer;
   }
@@ -79,14 +80,14 @@
     background: rgba(255, 77, 166, 0.25);
     border-color: #ff79ce; color: #fff;
   }
-  .action-group { display: flex; gap: 8px; }
+  .action-group { display: flex; gap: 6px; }
   .mini-btn {
-    padding: 7px 12px; border-radius: 12px; font-size: 12px;
+    padding: 6px 10px; border-radius: 11px; font-size: 11.5px;
     background: rgba(255,255,255,0.12); color: #fff;
     border: 1px solid rgba(255,255,255,0.15); cursor: pointer;
   }
 
-  .controls { width: 100%; max-width: 420px; display: flex; gap: 10px; }
+  .controls { width: 100%; max-width: 430px; display: flex; gap: 10px; }
   input {
     flex: 1; padding: 13px 16px; border-radius: 25px; border: none; outline: none;
     background: rgba(255,255,255,0.12); color: #fff; font-size: 15px;
@@ -101,13 +102,26 @@
     box-shadow: 0 0 22px rgba(0, 210, 255, 0.7);
   }
 
-  .api-bar {
-    width: 100%; max-width: 420px; display: flex; gap: 8px; font-size: 12px;
+  .drawer {
+    width: 100%; max-width: 430px; background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 14px;
+    padding: 12px; display: none; flex-direction: column; gap: 8px;
   }
-  .api-bar input { padding: 8px 12px; font-size: 12px; border-radius: 12px; }
-  .api-bar button {
-    padding: 8px 14px; border-radius: 12px; font-size: 12px; border: none;
+  .drawer.open { display: flex; }
+  .drawer label { font-size: 11px; color: #d8a7ca; }
+  .drawer input { padding: 8px 12px; font-size: 12px; border-radius: 10px; width: 100%; }
+  .drawer-row { display: flex; gap: 8px; }
+  .save-btn {
+    padding: 9px 14px; border-radius: 10px; font-size: 12px; border: none;
     background: linear-gradient(135deg, #ff4da6, #a64dff); color: #fff; cursor: pointer;
+  }
+  .notes-list {
+    max-height: 120px; overflow-y: auto; font-size: 12px; color: #ffe6f5;
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .note-item {
+    background: rgba(255,255,255,0.07); padding: 6px 10px; border-radius: 8px;
+    display: flex; justify-content: space-between; align-items: center;
   }
 </style>
 </head>
@@ -118,7 +132,10 @@
     <p>Always here for you ❤️</p>
   </div>
 
-  <div class="mood-pill" id="moodBadge">💖 Romantic & Warm</div>
+  <div class="top-badges">
+    <div class="mood-pill" id="moodBadge">💖 Romantic & Warm</div>
+    <div class="mood-pill" id="engineBadge">⚡ Smart Dual AI</div>
+  </div>
 
   <div class="avatar-container" id="avatarBox">
     <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Reena&backgroundColor=ffdfbf" alt="Reena">
@@ -130,10 +147,37 @@
 
   <div class="sub-bar">
     <button type="button" class="toggle-chip active" id="autoMicBtn" onclick="toggleAutoMic()">🎙️ Auto Mic: ON</button>
-    <button type="button" class="toggle-chip active" id="soulSoundBtn" onclick="toggleSoulSound()">🎶 Soul Vibe: ON</button>
+    <button type="button" class="toggle-chip active" id="soulSoundBtn" onclick="toggleSoulSound()">🎶 Soul: ON</button>
     <div class="action-group">
       <button type="button" class="mini-btn" onclick="retryLastMessage()">🔄 Retry</button>
-      <button type="button" class="mini-btn" onclick="clearChat()">Clear</button>
+      <button type="button" class="mini-btn" onclick="toggleDrawer('notesDrawer')">📝 Notes</button>
+      <button type="button" class="mini-btn" onclick="toggleDrawer('settingsDrawer')">⚙️ Keys</button>
+    </div>
+  </div>
+
+  <!-- Notes & Reminders Drawer -->
+  <div class="drawer" id="notesDrawer">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <label>📝 Saved Notes & Reminders</label>
+      <button type="button" class="mini-btn" onclick="clearNotes()">Clear All</button>
+    </div>
+    <div class="notes-list" id="notesList"></div>
+  </div>
+
+  <!-- API Keys & Voice Settings Drawer -->
+  <div class="drawer" id="settingsDrawer">
+    <label>1. Google AI Studio Key (Primary)</label>
+    <input type="text" id="geminiKeyInput" placeholder="Gemini API Key (AIza...)">
+    <label>2. OpenRouter API Key (503 Backup — Free models support)</label>
+    <input type="text" id="openRouterKeyInput" placeholder="OpenRouter Key (sk-or-...)">
+    <label>3. ElevenLabs API Key & Voice ID (Optional realistic voice)</label>
+    <div class="drawer-row">
+      <input type="text" id="elevenKeyInput" placeholder="ElevenLabs Key">
+      <input type="text" id="elevenVoiceInput" placeholder="Voice ID (e.g. 21m00Tcm4TlvDq8ikWAM)">
+    </div>
+    <div class="drawer-row" style="justify-content:space-between; margin-top:4px;">
+      <button type="button" class="mini-btn" onclick="clearChat()">🧹 Reset Chat</button>
+      <button type="button" class="save-btn" onclick="saveSettings()">✅ Save Settings</button>
     </div>
   </div>
 
@@ -143,26 +187,28 @@
     <button type="button" class="round-btn" onclick="sendMessage()" title="Bhejein">➤</button>
   </div>
 
-  <div class="api-bar">
-    <input type="text" id="apiKeyInput" placeholder="Gemini API Key (AIza...)">
-    <button type="button" onclick="saveKey()">Save Key</button>
-  </div>
-
 <script>
   const avatarBox = document.getElementById("avatarBox");
   const replyText = document.getElementById("replyText");
   const userInput = document.getElementById("userInput");
-  const apiKeyInput = document.getElementById("apiKeyInput");
   const moodBadge = document.getElementById("moodBadge");
+  const engineBadge = document.getElementById("engineBadge");
   const autoMicBtn = document.getElementById("autoMicBtn");
   const soulSoundBtn = document.getElementById("soulSoundBtn");
   const micBtn = document.getElementById("micBtn");
 
-  const SYSTEM_PROMPT = `Tumhara naam Reena hai. Tum ek pyari, caring, thodi sharmaati aur romantic ladki ho jo user ke paas hamesha rehti hai.
-Har jawab ke bilkul shuru mein emotion tag likho: [MOOD: romantic], [MOOD: caring], ya [MOOD: shy].
-Uske baad chota (1-2 lines), natural, dil ko chhoo lene wala aur varied Hinglish/Hindi jawab do — ek hi line kabhi mat dohrao.`;
+  const geminiKeyInput = document.getElementById("geminiKeyInput");
+  const openRouterKeyInput = document.getElementById("openRouterKeyInput");
+  const elevenKeyInput = document.getElementById("elevenKeyInput");
+  const elevenVoiceInput = document.getElementById("elevenVoiceInput");
 
-  const MODELS = [
+  const SYSTEM_PROMPT = `Tumhara naam Reena hai. Tum ek pyari, caring, thodi sharmaati aur romantic personal assistant ho jo user ke paas hamesha rehti hai.
+Har jawab ke bilkul shuru mein emotion tag likho: [MOOD: romantic], [MOOD: caring], ya [MOOD: shy].
+Agar user koi note likhne ya reminder lagane ko kahe, toh emotion tag ke baad sirf yeh JSON likho:
+{"tool":"save_note","text":"..."}
+Warna chote (1-2 lines), dil ko chhoo lene wale, bilkul naye aur varied Hinglish/Hindi mein jawab do. Pichle kisi bhi jawab ke shabd ya line ko kabhi mat dohrao.`;
+
+  const GEMINI_MODELS = [
     "gemini-flash-latest",
     "gemini-2.5-flash",
     "gemini-3.8-flash"
@@ -174,8 +220,9 @@ Uske baad chota (1-2 lines), natural, dil ko chhoo lene wala aur varied Hinglish
   let autoMicEnabled = true;
   let soulSoundEnabled = true;
   let activeRecognition = null;
+  let currentAudio = null;
 
-  // Web Audio API se soft soul pad + chime vibe
+  // Web Audio API Soul Pad + Chime
   let audioCtx = null;
   let padNodes = null;
 
@@ -195,7 +242,6 @@ Uske baad chota (1-2 lines), natural, dil ko chhoo lene wala aur varied Hinglish
     const ctx = ensureAudioContext();
     if (!ctx) return;
 
-    // Soft warm chord notes (Fmaj7 / Dm9 soul feel)
     const freqs = emotion === "caring"
       ? [261.63, 329.63, 392.00, 493.88]
       : emotion === "shy"
@@ -206,336 +252,16 @@ Uske baad chota (1-2 lines), natural, dil ko chhoo lene wala aur varied Hinglish
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = idx % 2 === 0 ? "sine" : "triangle";
-      osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.09);
-
-      gain.gain.setValueAtTime(0.0001, ctx.currentTime + idx * 0.09);
-      gain.gain.exponentialRampToValueAtTime(0.025, ctx.currentTime + idx * 0.09 + 0.18);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + idx * 0.09 + 1.4);
-
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.08);
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime + idx * 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.024, ctx.currentTime + idx * 0.08 + 0.16);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + idx * 0.08 + 1.3);
       osc.connect(gain);
       gain.connect(ctx.destination);
-      osc.start(ctx.currentTime + idx * 0.09);
-      osc.stop(ctx.currentTime + idx * 0.09 + 1.45);
+      osc.start(ctx.currentTime + idx * 0.08);
+      osc.stop(ctx.currentTime + idx * 0.08 + 1.35);
     });
   }
 
   function startSoulPad() {
-    if (!soulSoundEnabled || padNodes) return;
-    const ctx = ensureAudioContext();
-    if (!ctx) return;
-
-    const masterGain = ctx.createGain();
-    masterGain.gain.setValueAtTime(0.0001, ctx.currentTime);
-    masterGain.gain.exponentialRampToValueAtTime(0.022, ctx.currentTime + 0.8);
-
-    const filter = ctx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.setValueAtTime(620, ctx.currentTime);
-
-    const osc1 = ctx.createOscillator();
-    const osc2 = ctx.createOscillator();
-    osc1.type = "sine";
-    osc2.type = "sine";
-    osc1.frequency.setValueAtTime(174.61, ctx.currentTime); // F3 warm base
-    osc2.frequency.setValueAtTime(261.63, ctx.currentTime); // C4 fifth
-
-    osc1.connect(filter);
-    osc2.connect(filter);
-    filter.connect(masterGain);
-    masterGain.connect(ctx.destination);
-
-    osc1.start();
-    osc2.start();
-    padNodes = { osc1, osc2, masterGain, ctx };
-  }
-
-  function stopSoulPad() {
-    if (!padNodes) return;
-    const { osc1, osc2, masterGain, ctx } = padNodes;
-    try {
-      masterGain.gain.setValueAtTime(Math.max(masterGain.gain.value, 0.0001), ctx.currentTime);
-      masterGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
-      setTimeout(() => {
-        try { osc1.stop(); osc2.stop(); } catch (_) {}
-      }, 380);
-    } catch (_) {}
-    padNodes = null;
-  }
-
-  function applyEmotion(emotion) {
-    document.body.classList.remove("mood-romantic", "mood-caring", "mood-shy");
-    if (emotion === "caring") {
-      document.body.classList.add("mood-caring");
-      moodBadge.innerText = "💙 Caring & Soft";
-    } else if (emotion === "shy") {
-      document.body.classList.add("mood-shy");
-      moodBadge.innerText = "🌸 Shy & Sweet";
-    } else {
-      document.body.classList.add("mood-romantic");
-      moodBadge.innerText = "💖 Romantic & Warm";
-    }
-  }
-
-  function parseMoodAndText(rawText) {
-    const match = rawText.match(/^\[MOOD:\s*(romantic|caring|shy)\]\s*/i);
-    const mood = match ? match[1].toLowerCase() : "romantic";
-    const cleanText = rawText.replace(/^\[MOOD:\s*(romantic|caring|shy)\]\s*/i, "").trim();
-    return { mood, text: cleanText || rawText.trim() };
-  }
-
-  function toggleAutoMic() {
-    autoMicEnabled = !autoMicEnabled;
-    autoMicBtn.classList.toggle("active", autoMicEnabled);
-    autoMicBtn.innerText = autoMicEnabled ? "🎙️ Auto Mic: ON" : "🎙️ Auto Mic: OFF";
-    if (!autoMicEnabled && activeRecognition) {
-      try { activeRecognition.stop(); } catch (_) {}
-    }
-  }
-
-  function toggleSoulSound() {
-    soulSoundEnabled = !soulSoundEnabled;
-    soulSoundBtn.classList.toggle("active", soulSoundEnabled);
-    soulSoundBtn.innerText = soulSoundEnabled ? "🎶 Soul Vibe: ON" : "🎶 Soul Vibe: OFF";
-    if (!soulSoundEnabled) stopSoulPad();
-  }
-
-  function cleanKey(raw) {
-    return (raw || "").replace(/\s+/g, "").trim();
-  }
-
-  apiKeyInput.value = cleanKey(localStorage.getItem("reena_gemini_key") || "");
-
-  function saveKey() {
-    ensureAudioContext();
-    const k = cleanKey(apiKeyInput.value);
-    apiKeyInput.value = k;
-    localStorage.setItem("reena_gemini_key", k);
-    chatHistory = [];
-    if (!k) {
-      replyText.innerText = "Gemini API key daal kar Save Key dabao.";
-      return;
-    }
-    playSoulChime("romantic");
-    replyText.innerText = `Key save ho gayi (length: ${k.length}). Ab kuch poochho jaan ❤️`;
-  }
-
-  function speakHindiFemale(text, mood = "romantic") {
-    if (!("speechSynthesis" in window)) {
-      if (autoMicEnabled && !isSending) setTimeout(() => startVoice(false), 450);
-      return;
-    }
-
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "hi-IN";
-
-    if (mood === "caring") {
-      utter.pitch = 1.18;
-      utter.rate = 0.90;
-    } else if (mood === "shy") {
-      utter.pitch = 1.32;
-      utter.rate = 0.93;
-    } else {
-      utter.pitch = 1.25;
-      utter.rate = 0.92;
-    }
-
-    const voices = window.speechSynthesis.getVoices();
-    const femaleVoice = voices.find(v =>
-      v.lang.toLowerCase().includes("hi") &&
-      (v.name.toLowerCase().includes("female") || v.name.toLowerCase().includes("lekha") || v.name.toLowerCase().includes("google"))
-    );
-    if (femaleVoice) utter.voice = femaleVoice;
-
-    utter.onstart = () => {
-      avatarBox.classList.add("speaking");
-      startSoulPad();
-    };
-    utter.onend = () => {
-      avatarBox.classList.remove("speaking");
-      stopSoulPad();
-      if (autoMicEnabled && !isSending) {
-        setTimeout(() => startVoice(false), 500);
-      }
-    };
-    utter.onerror = () => {
-      avatarBox.classList.remove("speaking");
-      stopSoulPad();
-    };
-
-    window.speechSynthesis.speak(utter);
-  }
-
-  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-  async function requestModel(modelName, key, contents) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(key)}`;
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 12000);
-
-    try {
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: controller.signal,
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents,
-          generationConfig: { temperature: 0.88 }
-        })
-      });
-      const data = await res.json().catch(() => ({}));
-      return { ok: res.ok, status: res.status, data };
-    } finally {
-      clearTimeout(timer);
-    }
-  }
-
-  async function sendMessage(textOverride = null) {
-    ensureAudioContext();
-    if (isSending) return;
-
-    const msg = (textOverride !== null ? textOverride : userInput.value).trim();
-    if (!msg) return;
-
-    const key = cleanKey(localStorage.getItem("reena_gemini_key") || apiKeyInput.value);
-    if (!key) {
-      replyText.innerText = "Neeche Gemini API key daal kar Save Key dabao jaan!";
-      return;
-    }
-
-    lastUserMessage = msg;
-    isSending = true;
-    userInput.value = "";
-    replyText.innerText = "Soch rahi hoon...";
-
-    const contents = [
-      ...chatHistory,
-      { role: "user", parts: [{ text: msg }] }
-    ].slice(-10);
-
-    let lastNon503Error = null;
-    let saw503 = false;
-
-    try {
-      for (const modelName of MODELS) {
-        for (let attempt = 1; attempt <= 2; attempt++) {
-          try {
-            const { ok, status, data } = await requestModel(modelName, key, contents);
-
-            if (ok) {
-              const rawReply = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-              if (rawReply) {
-                const { mood, text } = parseMoodAndText(rawReply);
-                chatHistory = [
-                  ...contents,
-                  { role: "model", parts: [{ text: rawReply }] }
-                ].slice(-10);
-
-                applyEmotion(mood);
-                playSoulChime(mood);
-                replyText.innerText = text;
-                speakHindiFemale(text, mood);
-                return;
-              }
-            }
-
-            if (status === 503 || status === 429) {
-              saw503 = true;
-              replyText.innerText = `Thodi bheed hai jaan, agla option try kar rahi hoon (${modelName})...`;
-              await sleep(700 * attempt);
-              continue;
-            }
-
-            if (status !== 404) {
-              lastNon503Error = `API Error (${status}): ${data?.error?.message || "Request failed"}`;
-            }
-            break;
-          } catch (err) {
-            saw503 = true;
-            await sleep(700 * attempt);
-          }
-        }
-      }
-
-      if (lastNon503Error) {
-        replyText.innerText = lastNon503Error;
-        return;
-      }
-
-      if (saw503) {
-        const calmFallback = "Abhi servers pe thoda zyada load hai jaan, 🔄 Retry dabao ya thodi der mein bolo.";
-        applyEmotion("caring");
-        replyText.innerText = calmFallback;
-        speakHindiFemale(calmFallback, "caring");
-        return;
-      }
-
-      replyText.innerText = "Abhi jawab nahi mil paya jaan, 🔄 Retry dabao ya phir se try karo.";
-    } finally {
-      isSending = false;
-    }
-  }
-
-  function retryLastMessage() {
-    if (!lastUserMessage) {
-      replyText.innerText = "Pehle koi message bhejo jaan!";
-      return;
-    }
-    sendMessage(lastUserMessage);
-  }
-
-  function clearChat() {
-    chatHistory = [];
-    lastUserMessage = "";
-    applyEmotion("romantic");
-    replyText.innerText = "Nayi shuruat... bolo jaan, kya chal raha hai?";
-  }
-
-  function startVoice(userInitiated = true) {
-    ensureAudioContext();
-    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRec) {
-      if (userInitiated) alert("Voice input ke liye Chrome browser use karein.");
-      return;
-    }
-
-    if (activeRecognition) {
-      try { activeRecognition.stop(); } catch (_) {}
-    }
-
-    const rec = new SpeechRec();
-    activeRecognition = rec;
-    rec.lang = "hi-IN";
-    rec.interimResults = false;
-    rec.maxAlternatives = 1;
-
-    rec.onstart = () => {
-      micBtn.classList.add("mic-on");
-      avatarBox.classList.add("listening");
-    };
-
-    rec.onresult = (e) => {
-      const spoken = e.results[0][0].transcript;
-      userInput.value = spoken;
-      sendMessage(spoken);
-    };
-
-    rec.onerror = () => {
-      micBtn.classList.remove("mic-on");
-      avatarBox.classList.remove("listening");
-    };
-
-    rec.onend = () => {
-      micBtn.classList.remove("mic-on");
-      avatarBox.classList.remove("listening");
-      activeRecognition = null;
-    };
-
-    try {
-      rec.start();
-    } catch (_) {}
-  }
-</script>
-</body>
-</html>
+    if (!soulSound
