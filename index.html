@@ -276,4 +276,57 @@
     input.value = "";
     document.getElementById("replyText").innerText = "Soch rahi hoon...";
 
-    const contents
+    const contents = history.concat([{ role: "user", parts: [{ text: msg }] }]).slice(-8);
+
+    try {
+      let res = gk ? await callGemini(gk, contents) : null;
+      if (!res && ok) res = await callOpenRouter(ok, contents);
+
+      if (!res || !res.text) {
+        document.getElementById("replyText").innerText = "Server busy hai jaan, Retry dabao.";
+        return;
+      }
+
+      let raw = res.text;
+      let mood = "romantic";
+      if (raw.toLowerCase().includes("[caring]")) mood = "caring";
+      else if (raw.toLowerCase().includes("[shy]")) mood = "shy";
+      raw = raw.replace(/\[(romantic|caring|shy)\]/gi, "").trim();
+
+      if (raw.toUpperCase().startsWith("NOTE:")) {
+        const noteTxt = raw.slice(5).trim();
+        addNote(noteTxt);
+        raw = "Note save kar liya jaan: " + noteTxt;
+      }
+
+      setMood(mood);
+      document.getElementById("modelTag").innerText = res.src;
+      history = contents.concat([{ role: "model", parts: [{ text: raw }] }]).slice(-8);
+      document.getElementById("replyText").innerText = raw;
+      speak(raw);
+    } catch (e) {
+      document.getElementById("replyText").innerText = "Error: " + e.message;
+    }
+  }
+
+  function retryMsg() {
+    if (lastMsg) sendChat(lastMsg);
+  }
+
+  function listenVoice() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return;
+    try {
+      const rec = new SR();
+      rec.lang = "hi-IN";
+      rec.onresult = function(e) {
+        const spoken = e.results[0][0].transcript;
+        document.getElementById("msgInput").value = spoken;
+        sendChat(spoken);
+      };
+      rec.start();
+    } catch (e) {}
+  }
+</script>
+</body>
+</html>
