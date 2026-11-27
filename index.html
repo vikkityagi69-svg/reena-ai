@@ -283,9 +283,13 @@
       if (!res && ok) res = await callOpenRouter(ok, contents);
 
       if (!res || !res.text) {
-        document.getElementById("replyText").innerText = "Server busy hai jaan, Retry dabao.";
+        const reason = gk
+          ? "Gemini ne reply nahi diya (key/model/quota check karo)."
+          : "Gemini key khali hai; Keys panel mein key daal kar Save Keys dabao.";
+        document.getElementById("replyText").innerText = reason + " Retry dabao.";
         return;
       }
+
 
       let raw = res.text;
       let mood = "romantic";
