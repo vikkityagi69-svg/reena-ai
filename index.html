@@ -264,4 +264,274 @@ Warna chote (1-2 lines), dil ko chhoo lene wale, bilkul naye aur varied Hinglish
   }
 
   function startSoulPad() {
-    if (!soulSound
+    if (!soulSoundEnabled || padNodes) return;
+    const ctx = ensureAudioContext();
+    if (!ctx) return;
+
+    const masterGain = ctx.createGain();
+    masterGain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    masterGain.gain.exponentialRampToValueAtTime(0.02, ctx.currentTime + 0.7);
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(600, ctx.currentTime);
+
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    osc1.type = "sine";
+    osc2.type = "sine";
+    osc1.frequency.setValueAtTime(174.61, ctx.currentTime);
+    osc2.frequency.setValueAtTime(261.63, ctx.currentTime);
+
+    osc1.connect(filter);
+    osc2.connect(filter);
+    filter.connect(masterGain);
+    masterGain.connect(ctx.destination);
+
+    osc1.start();
+    osc2.start();
+    padNodes = { osc1, osc2, masterGain, ctx };
+  }
+
+  function stopSoulPad() {
+    if (!padNodes) return;
+    const { osc1, osc2, masterGain, ctx } = padNodes;
+    try {
+      masterGain.gain.setValueAtTime(Math.max(masterGain.gain.value, 0.0001), ctx.currentTime);
+      masterGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
+      setTimeout(() => {
+        try { osc1.stop(); osc2.stop(); } catch (_) {}
+      }, 380);
+    } catch (_) {}
+    padNodes = null;
+  }
+
+  function cleanStr(raw) {
+    return (raw || "").replace(/\s+/g, "").trim();
+  }
+
+  // Load saved keys
+  geminiKeyInput.value = cleanStr(localStorage.getItem("reena_gemini_key") || "");
+  openRouterKeyInput.value = cleanStr(localStorage.getItem("reena_openrouter_key") || "");
+  elevenKeyInput.value = cleanStr(localStorage.getItem("reena_eleven_key") || "");
+  elevenVoiceInput.value = cleanStr(localStorage.getItem("reena_eleven_voice") || "");
+
+  if (!geminiKeyInput.value && !openRouterKeyInput.value) {
+    document.getElementById("settingsDrawer").classList.add("open");
+  }
+
+  function toggleDrawer(id) {
+    const el = document.getElementById(id);
+    const willOpen = !el.classList.contains("open");
+    document.querySelectorAll(".drawer").forEach(d => d.classList.remove("open"));
+    if (willOpen) {
+      el.classList.add("open");
+      if (id === "notesDrawer") renderNotes();
+    }
+  }
+
+  function saveSettings() {
+    ensureAudioContext();
+    const gk = cleanStr(geminiKeyInput.value);
+    const ok = cleanStr(openRouterKeyInput.value);
+    const ek = cleanStr(elevenKeyInput.value);
+    const ev = cleanStr(elevenVoiceInput.value);
+
+    geminiKeyInput.value = gk;
+    openRouterKeyInput.value = ok;
+    elevenKeyInput.value = ek;
+    elevenVoiceInput.value = ev;
+
+    localStorage.setItem("reena_gemini_key", gk);
+    localStorage.setItem("reena_openrouter_key", ok);
+    localStorage.setItem("reena_eleven_key", ek);
+    localStorage.setItem("reena_eleven_voice", ev);
+
+    chatHistory = [];
+    document.getElementById("settingsDrawer").classList.remove("open");
+    playSoulChime("romantic");
+    replyText.innerText = "Settings save ho gayi jaan ❤️ Ab bolo, main sun rahi hoon!";
+  }
+
+  // Notes storage
+  function getNotes() {
+    try { return JSON.parse(localStorage.getItem("reena_notes") || "[]"); }
+    catch { return []; }
+  }
+
+  function addNote(text) {
+    const notes = getNotes();
+    notes.unshift({ text, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) });
+    localStorage.setItem("reena_notes", JSON.stringify(notes.slice(0, 30)));
+    renderNotes();
+  }
+
+  function renderNotes() {
+    const list = document.getElementById("notesList");
+    const notes = getNotes();
+    if (!notes.length) {
+      list.innerHTML = `<div style="opacity:0.65;">Abhi koi note save nahi hai.</div>`;
+      return;
+    }
+    list.innerHTML = notes.map((n, i) => `
+      <div class="note-item">
+        <span>${n.text} <small style="opacity:0.6;">(${n.time})</small></span>
+        <button type="button" class="mini-btn" style="padding:2px 6px;" onclick="deleteNote(${i})">✕</button>
+      </div>
+    `).join("");
+  }
+
+  function deleteNote(idx) {
+    const notes = getNotes();
+    notes.splice(idx, 1);
+    localStorage.setItem("reena_notes", JSON.stringify(notes));
+    renderNotes();
+  }
+
+  function clearNotes() {
+    localStorage.removeItem("reena_notes");
+    renderNotes();
+  }
+
+  function applyEmotion(emotion) {
+    document.body.classList.remove("mood-romantic", "mood-caring", "mood-shy");
+    if (emotion === "caring") {
+      document.body.classList.add("mood-caring");
+      moodBadge.innerText = "💙 Caring & Soft";
+    } else if (emotion === "shy") {
+      document.body.classList.add("mood-shy");
+      moodBadge.innerText = "🌸 Shy & Sweet";
+    } else {
+      document.body.classList.add("mood-romantic");
+      moodBadge.innerText = "💖 Romantic & Warm";
+    }
+  }
+
+  function parseReply(rawText) {
+    const match = rawText.match(/^\[MOOD:\s*(romantic|caring|shy)\]\s*/i);
+    const mood = match ? match[1].toLowerCase() : "romantic";
+    let body = rawText.replace(/^\[MOOD:\s*(romantic|caring|shy)\]\s*/i, "").trim();
+
+    // Check tool JSON
+    try {
+      const cleanJson = body.replace(/```json|```/g, "").trim();
+      if (cleanJson.startsWith("{") && cleanJson.endsWith("}")) {
+        const parsed = JSON.parse(cleanJson);
+        if (parsed.tool === "save_note" && parsed.text) {
+          addNote(parsed.text);
+          body = `Maine note likh liya hai jaan: "${parsed.text}" 📝`;
+        }
+      }
+    } catch (_) {}
+
+    return { mood, text: body || rawText.trim() };
+  }
+
+  function toggleAutoMic() {
+    autoMicEnabled = !autoMicEnabled;
+    autoMicBtn.classList.toggle("active", autoMicEnabled);
+    autoMicBtn.innerText = autoMicEnabled ? "🎙️ Auto Mic: ON" : "🎙️ Auto Mic: OFF";
+    if (!autoMicEnabled && activeRecognition) {
+      try { activeRecognition.stop(); } catch (_) {}
+    }
+  }
+
+  function toggleSoulSound() {
+    soulSoundEnabled = !soulSoundEnabled;
+    soulSoundBtn.classList.toggle("active", soulSoundEnabled);
+    soulSoundBtn.innerText = soulSoundEnabled ? "🎶 Soul: ON" : "🎶 Soul: OFF";
+    if (!soulSoundEnabled) stopSoulPad();
+  }
+
+  function finishSpeakingFlow() {
+    avatarBox.classList.remove("speaking");
+    stopSoulPad();
+    if (autoMicEnabled && !isSending) {
+      setTimeout(() => startVoice(false), 500);
+    }
+  }
+
+  async function speakReply(text, mood = "romantic") {
+    if (currentAudio) {
+      try { currentAudio.pause(); } catch (_) {}
+      currentAudio = null;
+    }
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+
+    const elevenKey = cleanStr(localStorage.getItem("reena_eleven_key") || "");
+    const elevenVoice = cleanStr(localStorage.getItem("reena_eleven_voice") || "21m00Tcm4TlvDq8ikWAM");
+
+    // 1. Try ElevenLabs if configured
+    if (elevenKey) {
+      try {
+        const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(elevenVoice)}`, {
+          method: "POST",
+          headers: {
+            "xi-api-key": elevenKey,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            text,
+            model_id: "eleven_multilingual_v2"
+          })
+        });
+        if (res.ok) {
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          const audio = new Audio(url);
+          currentAudio = audio;
+          audio.onplay = () => {
+            avatarBox.classList.add("speaking");
+            startSoulPad();
+          };
+          audio.onended = () => {
+            URL.revokeObjectURL(url);
+            finishSpeakingFlow();
+          };
+          audio.onerror = () => {
+            URL.revokeObjectURL(url);
+            speakWithBrowserTTS(text, mood);
+          };
+          await audio.play();
+          return;
+        }
+      } catch (_) {}
+    }
+
+    // 2. Browser Hindi Female TTS fallback
+    speakWithBrowserTTS(text, mood);
+  }
+
+  function speakWithBrowserTTS(text, mood) {
+    if (!("speechSynthesis" in window)) {
+      finishSpeakingFlow();
+      return;
+    }
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "hi-IN";
+    utter.pitch = mood === "shy" ? 1.32 : mood === "caring" ? 1.18 : 1.25;
+    utter.rate = 0.92;
+
+    const voices = window.speechSynthesis.getVoices();
+    const femaleVoice = voices.find(v =>
+      v.lang.toLowerCase().includes("hi") &&
+      (v.name.toLowerCase().includes("female") || v.name.toLowerCase().includes("lekha") || v.name.toLowerCase().includes("google"))
+    );
+    if (femaleVoice) utter.voice = femaleVoice;
+
+    utter.onstart = () => {
+      avatarBox.classList.add("speaking");
+      startSoulPad();
+    };
+    utter.onend = finishSpeakingFlow;
+    utter.onerror = finishSpeakingFlow;
+    window.speechSynthesis.speak(utter);
+  }
+
+  async function tryGemini(geminiKey, contents) {
+    if (!geminiKey) return null;
+    for (const modelName of GEMINI_MODELS) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 11000);
+      try {
+        const url = 
